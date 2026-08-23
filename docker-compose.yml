@@ -1,0 +1,8 @@
+services:
+  pagos-svc:
+    build: .
+    image: duoc/jv0101-foodgo-pagos:1.0.0
+    container_name: foodgo-pagos-svc
+    ports:
+      - "${PORT:-8084}:8084"
+    restart: unless-stopped
