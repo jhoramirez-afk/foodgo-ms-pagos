@@ -1,5 +1,11 @@
 package cl.duoc.jv0101.foodgo.pagos.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.OneToMany;
+import jakarta.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -26,6 +32,11 @@ public class Pago {
     @Column
     private BigDecimal monto;
 
+    @Valid
+    @OneToMany(mappedBy = "pago", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference("pago-transacciones")
+    private List<TransaccionPago> transacciones = new ArrayList<>();
+
     public Long getId() { return id; }
 
     public void setId(Long id) { this.id = id; }
@@ -42,4 +53,24 @@ public class Pago {
 
     public void setMonto(BigDecimal monto) { this.monto = monto; }
 
+    public List<TransaccionPago> getTransacciones() {
+        return transacciones;
+    }
+
+    public void setTransacciones(List<TransaccionPago> items) {
+        this.transacciones.clear();
+        if (items != null) {
+            items.forEach(this::addTransaccionPago);
+        }
+    }
+
+    public void addTransaccionPago(TransaccionPago item) {
+        transacciones.add(item);
+        item.setPago(this);
+    }
+
+    public void removeTransaccionPago(TransaccionPago item) {
+        transacciones.remove(item);
+        item.setPago(null);
+    }
 }
