@@ -30,7 +30,7 @@ class PagoServiceTest {
         Pago r = new Pago();
         r.setId(1L);
         r.setPedido("Demo");
-        r.setMetodo("valor");
+        r.setMetodo("TARJETA");
         r.setMonto(BigDecimal.TEN);
         return r;
     }

@@ -1,6 +1,7 @@
 package cl.duoc.jv0101.foodgo.pagos.service;
 
 import java.util.List;
+import java.util.ArrayList;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import cl.duoc.jv0101.foodgo.pagos.exception.ResourceNotFoundException;
@@ -40,6 +41,7 @@ public class TransaccionPagoService {
                 .orElseThrow(() -> new ResourceNotFoundException("Pago no encontrado con id " + pagoId));
         recurso.setId(null);
         recurso.setPago(pago);
+        validarCambio(pago, recurso);
         return repository.save(recurso);
     }
 
@@ -49,11 +51,21 @@ public class TransaccionPagoService {
         existente.setMonto(datos.getMonto());
         existente.setEstado(datos.getEstado());
         existente.setReferencia(datos.getReferencia());
+        validarCambio(existente.getPago(), existente);
         return repository.save(existente);
     }
 
     public void delete(Long id) {
         TransaccionPago existente = findById(id);
+        List<TransaccionPago> restantes = new ArrayList<>(repository.findByPago_Id(existente.getPago().getId()));
+        restantes.removeIf(item -> item.getId().equals(id));
+        PagoService.validarTransacciones(existente.getPago(), restantes);
         repository.delete(existente);
+    }
+    private void validarCambio(Pago pago, TransaccionPago cambio) {
+        List<TransaccionPago> propuestas = new ArrayList<>(repository.findByPago_Id(pago.getId()));
+        propuestas.removeIf(item -> item.getId().equals(cambio.getId()));
+        propuestas.add(cambio);
+        PagoService.validarTransacciones(pago, propuestas);
     }
 }
