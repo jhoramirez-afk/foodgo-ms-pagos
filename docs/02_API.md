@@ -1,48 +1,41 @@
-# Pago — Contrato de la API REST
+# API REST: pagos
 
-## Base
+Base local: http://localhost:8084/api. Swagger UI: http://localhost:8084/swagger-ui/index.html.
 
-- **Base path**: `/api/pagos`
-- **Formato**: JSON — **Puerto**: 8084 (configurable con `PORT`)
+| Método | Ruta | HTTP de éxito |
+|---|---|---:|
+| POST | /pagos | 201 |
+| GET | /pagos | 200 |
+| GET | /pagos/{id} | 200 |
+| PUT | /pagos/{id} | 200 |
+| DELETE | /pagos/{id} | 204 |
+| POST | /pagos/{id}/transacciones | 201 |
+| GET | /pagos/{id}/transacciones | 200 |
+| GET | /transacciones/{id} | 200 |
+| PUT | /transacciones/{id} | 200 |
+| DELETE | /transacciones/{id} | 204 |
 
-## Recursos
+## Crear entidad principal
 
-| Método | Ruta | Códigos de estado | Descripción |
-|--------|------|-------------------|-------------|
-| GET | `/api/pagos` | 200 | Lista todos los recursos |
-| GET | `/api/pagos/{id}` | 200 / 404 | Obtiene un recurso por id |
-| POST | `/api/pagos` | 201 / 400 | Crea un recurso |
-| PUT | `/api/pagos/{id}` | 200 / 404 / 400 | Actualiza un recurso |
-| DELETE | `/api/pagos/{id}` | 204 / 404 | Elimina un recurso |
-
-## Atributos de un recurso
-
-| Campo | Tipo | Obligatorio | Descripción |
-|-------|------|-------------|-------------|
-| id | Long | - | Identificador autogenerado |
-| pedido | String | Sí | Campo principal del recurso |
-| metodo | String | No | Campo del dominio |
-| monto | BigDecimal | No | Campo del dominio |
-
-## Ejemplos con curl
-
-```bash
-# Listar
-curl http://localhost:8084/api/pagos
-
-# Crear
-curl -X POST http://localhost:8084/api/pagos \
-  -H "Content-Type: application/json" \
-  -d '{"pedido":"Demo"}'
-
-# Obtener por id
-curl http://localhost:8084/api/pagos/1
-
-# Actualizar
-curl -X PUT http://localhost:8084/api/pagos/1 \
-  -H "Content-Type: application/json" \
-  -d '{"pedido":"Actualizado"}'
-
-# Eliminar
-curl -X DELETE http://localhost:8084/api/pagos/1
+```json
+{
+  "pedido": "PED-DEMO",
+  "metodo": "TARJETA",
+  "monto": 19980
+}
 ```
+
+## Crear entidad relacionada
+
+```json
+{
+  "tipo": "COBRO",
+  "monto": 19980,
+  "estado": "APROBADA",
+  "referencia": "FG-DEMO-01"
+}
+```
+
+Usar el ID retornado por la creación del padre. Los ID son generados por la BD. Editar los hijos mediante sus propias rutas. Ver las reglas y los campos calculados en REGLAS_EP02.md.
+
+Errores: 400 para datos o JSON inválidos; 404 para recurso/relación local inexistente; 409 para conflictos de integridad o unicidad cuando corresponda. Un campo demasiado largo devuelve 400. Los mensajes y validationErrors se entregan mediante ApiExceptionHandler.

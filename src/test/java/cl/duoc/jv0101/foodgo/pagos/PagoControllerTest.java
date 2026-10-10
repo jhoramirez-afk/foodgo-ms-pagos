@@ -41,7 +41,7 @@ class PagoControllerTest {
         Pago r = new Pago();
         r.setId(id);
         r.setPedido("Demo");
-        r.setMetodo("valor");
+        r.setMetodo("TARJETA");
         r.setMonto(BigDecimal.TEN);
         return r;
     }
