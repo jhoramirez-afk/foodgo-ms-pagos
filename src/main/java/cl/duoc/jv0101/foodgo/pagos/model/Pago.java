@@ -1,5 +1,12 @@
 package cl.duoc.jv0101.foodgo.pagos.model;
 
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.OneToMany;
@@ -12,7 +19,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 
 
@@ -24,12 +30,18 @@ public class Pago {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "El pedido es obligatorio")
+    @NotBlank(message = "Pedido es obligatorio")
+    @Size(max = 255, message = "El campo admite hasta 255 caracteres")
     @Column(nullable = false)
     private String pedido;
-    @Column
+    @NotBlank(message = "Método de pago es obligatorio")
+    @Pattern(regexp = "TARJETA|TRANSFERENCIA|EFECTIVO", message = "Método de pago debe ser TARJETA, TRANSFERENCIA, EFECTIVO")
+    @Column(nullable = false)
     private String metodo;
-    @Column
+    @NotNull(message = "Monto es obligatorio")
+    @DecimalMin(value = "1", message = "Monto debe ser mayor que cero")
+    @Digits(integer = 9, fraction = 0, message = "El importe debe expresarse en pesos CLP enteros, hasta 9 dígitos")
+    @Column(precision = 9, scale = 0)
     private BigDecimal monto;
 
     @Valid

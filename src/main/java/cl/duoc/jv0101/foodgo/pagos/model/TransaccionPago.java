@@ -1,5 +1,12 @@
 package cl.duoc.jv0101.foodgo.pagos.model;
 
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,8 +17,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 
 @Entity
@@ -22,19 +27,24 @@ public class TransaccionPago {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Tipo es obligatorio")
+    @NotBlank(message = "Tipo de transacción es obligatorio")
+    @Pattern(regexp = "COBRO|REEMBOLSO", message = "Tipo de transacción debe ser COBRO, REEMBOLSO")
     @Column(nullable = false)
     private String tipo;
 
-    @DecimalMin(value = "0.0", inclusive = true, message = "El valor no puede ser negativo")
-    @Column
+    @NotNull(message = "Monto es obligatorio")
+    @DecimalMin(value = "1", message = "Monto debe ser mayor que cero")
+    @Digits(integer = 9, fraction = 0, message = "El importe debe expresarse en pesos CLP enteros, hasta 9 dígitos")
+    @Column(precision = 9, scale = 0)
     private BigDecimal monto;
 
-    @NotBlank(message = "Estado es obligatorio")
+    @NotBlank(message = "Estado de transacción es obligatorio")
+    @Pattern(regexp = "PENDIENTE|APROBADA|RECHAZADA", message = "Estado de transacción debe ser PENDIENTE, APROBADA, RECHAZADA")
     @Column(nullable = false)
     private String estado;
 
     @NotBlank(message = "Referencia es obligatorio")
+    @Size(max = 255, message = "El campo admite hasta 255 caracteres")
     @Column(nullable = false)
     private String referencia;
 
