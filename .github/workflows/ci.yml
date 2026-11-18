@@ -20,7 +20,24 @@ jobs:
           cache: maven
 
       - name: Build y tests (con cobertura JaCoCo)
-        run: mvn -B verify
+        run: |
+          for intento in 1 2 3; do
+            set +e
+            mvn -B -U verify 2>&1 | tee maven-build.log
+            resultado=${PIPESTATUS[0]}
+            set -e
+            if [ "$resultado" -eq 0 ]; then
+              exit 0
+            fi
+            if ! grep -qE 'status code: 429|Too Many Requests \(429\)' maven-build.log; then
+              exit "$resultado"
+            fi
+            if [ "$intento" -eq 3 ]; then
+              exit "$resultado"
+            fi
+            echo "Maven Central limita la descarga (429); reintento $intento de 2."
+            sleep $((intento * 30))
+          done
 
       - name: Publicar reporte de cobertura
         if: always()
